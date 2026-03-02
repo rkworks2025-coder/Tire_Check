@@ -24,7 +24,7 @@
     const st = gv('[name="station"]');
     const pf = gv('[name="plate_full"]');
     const md = gv('[name="model"]');
-    return `v8c:${encodeURIComponent(st)}|${encodeURIComponent(pf)}|${encodeURIComponent(md)}`;
+    return `v8d:${encodeURIComponent(st)}|${encodeURIComponent(pf)}|${encodeURIComponent(md)}`;
   }
 
   // ===== 前回値表示（無い時はプレースホルダ） =====
@@ -272,7 +272,6 @@
     });
   }
 
-  // 簡易的な現在の週番号計算 (ISO準拠)
   const getWeek = (date) => {
     const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
     const dayNum = d.getUTCDay() || 7;
@@ -292,7 +291,7 @@
       form.addEventListener('submit', async ev => {
         ev.preventDefault();
 
-        // ===== WWYY (週週年年) バリデーション =====
+        // ===== WWYY バリデーション =====
         const now = new Date();
         const currentYear2Digit = Number(String(now.getFullYear()).slice(-2));
         const currentWeek = getWeek(now);
@@ -304,7 +303,7 @@
 
           if (dotVal.length !== 4) {
             showToast(`${pos.toUpperCase()}の製造年週は4桁で入力してください`);
-            return; // 送信中止
+            return; 
           }
 
           const ww = parseInt(dotVal.substring(0, 2), 10);
@@ -323,7 +322,6 @@
             return;
           }
         }
-        // ===========================================
 
         const p = collectPayload();
         let header = '';
@@ -343,6 +341,10 @@
         
         if(resLines) resLines.textContent = lines.join('\n');
         
+        // ▼▼▼ 巡回アプリへの帰還サイン（TMA自動発火用）を残す ▼▼▼
+        try { localStorage.setItem("junkai:tire_completed_plate", p.plate_full); } catch(e){}
+        // ▲▲▲
+
         if(form) form.style.display = 'none';
         if(resultCard) resultCard.style.display = 'block';
         window.scrollTo({top:0, behavior:'smooth'});
